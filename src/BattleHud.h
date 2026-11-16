@@ -4,9 +4,9 @@
 #include <raylib.h>
 #include <vector>
 
+#include "AnimationPlayer.h"
 #include "GameTypes.h"
 
-struct UnitDeath;
 class Unit;
 class Board;
 class Battle;
@@ -49,12 +49,11 @@ private:
     void DrawHealthBadge(const Unit& unit, Vector2 unitCenter) const;
     static Vector2 DrawOnTile(const Texture2D &texture, GridPosition pos);
     static void DrawInteractableTiles(const InteractableTiles& tiles);
-    void DrawDeathAnimations() const;
 
     void UnloadTextures() noexcept;
 
     std::optional<GridPosition> selectedEnemy_{};
-    std::vector<UnitDeath> deathAnimations_{};
+    AnimationPlayer animationPlayer_{};
 
     Texture2D background_{};
     Texture2D spikes_{};
@@ -65,7 +64,5 @@ private:
     Texture2D skeletonPortrait_{};
     Texture2D healthBadge_{};
     Texture2D actionMenu_{};
-    Texture2D skeletonDeath_{};
-    Texture2D knightDeath_{};
     Font font_{};
 };

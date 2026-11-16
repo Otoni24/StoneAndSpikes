@@ -103,6 +103,7 @@ bool Battle::TryAttackUnit(Unit &target) {
         return false;
     }
 
+    pendingAttack = Attack{.targetPos = target.GetPosition()};
     DamageUnit(target, attacker.GetAttackPower());
     if (!target.IsAlive()) {
         std::cout << "Unit at position (" << target.GetPosition().x << ", " << target.GetPosition().y << ") has been defeated.\n";
@@ -112,7 +113,7 @@ bool Battle::TryAttackUnit(Unit &target) {
 
 bool Battle::TryAttackUnit(const GridPosition targetPos) {
     Unit* target = FindUnitAt(targetPos);
-    return TryAttackUnit(*target);
+    return target != nullptr && TryAttackUnit(*target);
 }
 
 bool Battle::TryPushUnit(Unit &target) {
@@ -141,13 +142,7 @@ bool Battle::TryPushUnit(Unit &target) {
 
 bool Battle::TryPushUnit(const GridPosition targetPos) {
     Unit* target = FindUnitAt(targetPos);
-    return TryPushUnit(*target);
-}
-
-std::vector<UnitDeath> Battle::TakePendingDeaths() {
-    auto deaths = std::move(pendingDeaths_);
-    pendingDeaths_.clear();
-    return deaths;
+    return target != nullptr && TryPushUnit(*target);
 }
 
 std::vector<GridPosition> Battle::GetAdjacentEmptyPositions(const Unit& unit) const {
@@ -181,6 +176,18 @@ const Unit* Battle::FindUnitAt(const GridPosition pos) const {
         }
     }
     return nullptr;
+}
+
+std::optional<Attack> Battle::TakePendingAttack() {
+    const std::optional<Attack> attack = pendingAttack;
+    pendingAttack.reset();
+    return attack;
+}
+
+std::optional<Death> Battle::TakePendingDeath() {
+    const std::optional<Death> death = pendingDeath;
+    pendingDeath.reset();
+    return death;
 }
 
 std::optional<GridPosition> Battle::ChooseUnitSpawn(const UnitType unitType) {
@@ -225,9 +232,10 @@ std::optional<GridPosition> Battle::ChooseUnitSpawn(const UnitType unitType) {
 }
 
 void Battle::DamageUnit(Unit &unit, const int damage) {
+    const bool wasAlive = unit.IsAlive();
     unit.TakeDamage(damage);
-    if (!unit.IsAlive()) {
-        pendingDeaths_.push_back({.pos = unit.GetPosition(), .type = unit.GetType()});
+    if (wasAlive && !unit.IsAlive()) {
+        pendingDeath = Death{.pos = unit.GetPosition(), .type = unit.GetType()};
     }
 }
 

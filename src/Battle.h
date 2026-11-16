@@ -11,15 +11,13 @@
 
 class Unit;
 
-enum class TurnPhase {
-    SelectionPhase,
-    ActionPhase
+struct Attack {
+    GridPosition targetPos;
 };
 
-struct UnitDeath {
-    GridPosition pos{};
+struct Death {
+    GridPosition pos;
     UnitType type{};
-    float elapsed = 0.0f;
 };
 
 class Battle {
@@ -35,7 +33,6 @@ public:
     bool TryAttackUnit(GridPosition targetPos);
     bool TryPushUnit(Unit& target);
     bool TryPushUnit(GridPosition targetPos);
-    std::vector<UnitDeath> TakePendingDeaths();
 
     [[nodiscard]] std::vector<GridPosition> GetAdjacentEmptyPositions(const Unit& unit) const;
     [[nodiscard]] std::vector<GridPosition> GetAdjacentOpponentPositions(const Unit& unit) const;
@@ -49,6 +46,9 @@ public:
     [[nodiscard]] const Board& GetBoard() const { return board_; }
     [[nodiscard]] const Unit* FindUnitAt(GridPosition pos) const;
 
+    [[nodiscard]] std::optional<Attack> TakePendingAttack();
+    [[nodiscard]] std::optional<Death> TakePendingDeath();
+
 private:
     std::optional<GridPosition> ChooseUnitSpawn(UnitType unitType);
     void DamageUnit(Unit& unit, int damage);
@@ -59,5 +59,7 @@ private:
     Board board_;
     std::vector<Unit> units_;
     std::queue<std::size_t> turnOrder_;
-    std::vector<UnitDeath> pendingDeaths_;
+
+    std::optional<Attack> pendingAttack;
+    std::optional<Death> pendingDeath;
 };

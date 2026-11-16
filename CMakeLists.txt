@@ -27,6 +27,16 @@ add_executable(StoneAndSpikes src/main.cpp
         src/PlayerController.h
         src/BattleHud.cpp
         src/BattleHud.h
+        src/AnimationPlayer.cpp
+        src/AnimationPlayer.h
 )
 target_compile_features(StoneAndSpikes PRIVATE cxx_std_20)
 target_link_libraries(StoneAndSpikes PRIVATE raylib)
+
+# Keep relative asset paths valid when launching from the build directory.
+add_custom_command(TARGET StoneAndSpikes POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_CURRENT_SOURCE_DIR}/assets"
+        "$<TARGET_FILE_DIR:StoneAndSpikes>/assets"
+        VERBATIM
+)

@@ -17,8 +17,8 @@ int main() {
         BattleHud hud{};
 
         while (!WindowShouldClose()) {
+            hud.Update(battle);
             if (!battle.IsFinished()) {
-                hud.Update(battle);
                 switch (battle.GetActiveUnitType()) {
                     case UnitType::Ally:
                         break;

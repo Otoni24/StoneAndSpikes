@@ -1,5 +1,6 @@
 #include "BattleHud.h"
 
+#include <algorithm>
 #include <iostream>
 #include <ostream>
 #include <stdexcept>
@@ -24,15 +25,6 @@ namespace {
     constexpr char SkeletonPortraitPath[] = "assets/skeleton_portrait.png";
     constexpr char HealthBadgePath[] = "assets/health_badge.png";
     constexpr char ActionMenuPath[] = "assets/action_menu.png";
-    constexpr char SkeletonDeathPath[] = "assets/skeleton_death.png";
-    constexpr char KnightDeathPath[] = "assets/knight_death.png";
-
-    constexpr int DeathFrameCount = 6;
-    constexpr float DeathFrameWidth = 72.0f;
-    constexpr float DeathFrameHeight = 64.0f;
-    constexpr float DeathFps = 12.0f;
-    constexpr float DeathCollapseDuration = DeathFrameCount / DeathFps;
-    constexpr float DeathFadeDuration = 1.0f;
 
     void DrawCenteredText(const Font &font, const char* text, const Vector2 center, const float fontSize) {
         constexpr float spacing = 1.0f;
@@ -65,8 +57,6 @@ BattleHud::BattleHud(const Font& font)
         loadTexture(skeletonPortrait_, SkeletonPortraitPath);
         loadTexture(healthBadge_, HealthBadgePath);
         loadTexture(actionMenu_, ActionMenuPath);
-        loadTexture(skeletonDeath_, SkeletonDeathPath);
-        loadTexture(knightDeath_, KnightDeathPath);
     } catch (...) {
         UnloadTextures();
         throw;
@@ -101,8 +91,8 @@ void BattleHud::Draw(const Battle& battle) const {
     DrawBoardTiles(battle.GetBoard());
 
     DrawInteractableTiles(GetInteractableTiles(battle));
-    DrawDeathAnimations();
     DrawUnits(battle);
+    animationPlayer_.Draw();
     if (selectedEnemy_) DrawActionMenu(GetScreenPositionAtGridPosition(*selectedEnemy_));
 
     const Unit unit = battle.GetActiveUnit();
@@ -121,17 +111,24 @@ void BattleHud::Draw(const Battle& battle) const {
 }
 
 void BattleHud::Update(Battle& battle) {
-    const auto newDeaths = battle.TakePendingDeaths();
-    deathAnimations_.insert(deathAnimations_.end(), newDeaths.begin(), newDeaths.end());
+    animationPlayer_.Update(GetFrameTime());
 
-    const float deltaTime = GetFrameTime();
-    for (UnitDeath& death : deathAnimations_) {
-        death.elapsed += deltaTime;
+    if (const auto attack = battle.TakePendingAttack()) {
+        animationPlayer_.Play(AnimationType::Attack, GetScreenPositionAtGridPosition(attack->targetPos));
     }
-
-    std::erase_if(deathAnimations_, [](const UnitDeath& death) {
-        return death.elapsed >= DeathCollapseDuration + DeathFadeDuration;
-    });
+    if (const auto death = battle.TakePendingDeath()) {
+        AnimationType animType{};
+        switch (death->type)
+        {
+            case UnitType::Enemy:
+                animType = AnimationType::SkeletonDeath;
+                break;
+            case UnitType::Ally:
+                animType = AnimationType::KnightDeath;
+                break;
+        }
+        animationPlayer_.Play(animType, GetScreenPositionAtGridPosition(death->pos));
+    }
 
     if (battle.IsFinished() || !battle.IsAllyTurn()) {
         selectedEnemy_.reset();
@@ -315,38 +312,6 @@ void BattleHud::DrawInteractableTiles(const InteractableTiles &tiles) {
 
     for (const GridPosition pos : tiles.enemyTiles) {
         DrawRectangleRec(GetGridPositionRect(pos), enemyColor);
-    }
-}
-
-void BattleHud::DrawDeathAnimations() const {
-    for (const UnitDeath& death : deathAnimations_) {
-        if (death.type != UnitType::Enemy) {
-            continue;
-        }
-
-        const int frame = std::min(static_cast<int>(death.elapsed * DeathFps), DeathFrameCount - 1);
-
-        const Rectangle source{
-            .x = static_cast<float>(frame) * DeathFrameWidth,
-            .y = 0.0f,
-            .width = DeathFrameWidth,
-            .height = DeathFrameHeight
-        };
-
-        const Vector2 center = GetScreenPositionAtGridPosition(death.pos);
-        const Vector2 topLeft{
-            .x = center.x - DeathFrameWidth * 0.5f,
-            .y = center.y - DeathFrameHeight * 0.5f
-        };
-
-        const float fadeProgress = std::clamp(
-            (death.elapsed - DeathCollapseDuration) / DeathFadeDuration, 0.0f, 1.0f
-        );
-
-        Texture2D texture;
-        death.type == UnitType::Enemy ? texture = skeletonDeath_ : texture = knightDeath_;
-
-        DrawTextureRec(texture, source, topLeft, Fade(WHITE, 1.0f - fadeProgress));
     }
 }
 
