@@ -28,12 +28,12 @@ public:
     BattleHud(const BattleHud&) = delete;
     BattleHud& operator=(const BattleHud&) = delete;
 
-    [[nodiscard]] static bool EndTurnPressed();
     void HandleTileClick(GridPosition pos, Battle& battle);
     void Draw(const Battle& battle) const;
     void Update(Battle& battle);
 
 private:
+    [[nodiscard]] static bool EndTurnPressed();
     [[nodiscard]] static bool IsEndTurnHovered();
     [[nodiscard]] static std::optional<GridPosition> GetGridPositionAtScreenPosition(Vector2 screenPos);
     [[nodiscard]] static Vector2 GetScreenPositionAtGridPosition(GridPosition pos);
@@ -41,11 +41,13 @@ private:
     [[nodiscard]] static InteractableTiles GetInteractableTiles(const Battle& battle);
 
     [[nodiscard]] Vector2 GetActionMenuPosition(Vector2 unitCenter) const;
+    [[nodiscard]] Vector2 GetTurnArrowPosition(Vector2 unitCenter) const;
 
     void DrawBoardTiles(const Board& board) const;
     void DrawUnits(const Battle& battle) const;
 
     void DrawActionMenu(Vector2 unitCenter) const;
+    void DrawTurnArrow(Vector2 unitCenter) const;
     void DrawHealthBadge(const Unit& unit, Vector2 unitCenter) const;
     static Vector2 DrawOnTile(const Texture2D &texture, GridPosition pos);
     static void DrawInteractableTiles(const InteractableTiles& tiles);
@@ -64,5 +66,6 @@ private:
     Texture2D skeletonPortrait_{};
     Texture2D healthBadge_{};
     Texture2D actionMenu_{};
+    Texture2D turnArrow_{};
     Font font_{};
 };

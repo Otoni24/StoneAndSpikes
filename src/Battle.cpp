@@ -43,20 +43,23 @@ void Battle::NextTurn() {
         throw std::runtime_error("Turn order is empty. No units to end a turn.");
     }
 
-    const Unit& currentUnit = units_[turnOrder_.front()];
-
-    if (!currentUnit.IsAlive()) {
-        turnOrder_.pop();
-        NextTurn(); // Skip dead units
-    }
-
-    std::cout << "Unit at position (" << currentUnit.GetPosition().x << ", " << currentUnit.GetPosition().y << ") is taking its turn.\n";
-
+    // End the current turn, keeping only living units in the rotation.
     const std::size_t currentUnitIndex = turnOrder_.front();
     turnOrder_.pop();
-    turnOrder_.push(currentUnitIndex);
+    if (units_[currentUnitIndex].IsAlive()) {
+        turnOrder_.push(currentUnitIndex);
+    }
+
+    while (!turnOrder_.empty() && !units_[turnOrder_.front()].IsAlive()) {
+        turnOrder_.pop();
+    }
+    if (turnOrder_.empty()) {
+        throw std::runtime_error("No living units remain to take a turn.");
+    }
+
     Unit& newUnit = units_[turnOrder_.front()];
     newUnit.SetActionPoints(newUnit.GetMaxActionPoints());
+    std::cout << "Unit at position (" << newUnit.GetPosition().x << ", " << newUnit.GetPosition().y << ") is taking its turn.\n";
 }
 
 bool Battle::TryMoveActiveUnit(const GridPosition newPos) {
@@ -64,7 +67,7 @@ bool Battle::TryMoveActiveUnit(const GridPosition newPos) {
 }
 
 bool Battle::TryMoveUnit(Unit &unit, const GridPosition newPos, const bool push) {
-    if (!board_.IsInsideBounds(newPos)) {
+    if (!Board::IsInsideBounds(newPos)) {
         return false;
     }
 
@@ -86,10 +89,7 @@ bool Battle::TryMoveUnit(Unit &unit, const GridPosition newPos, const bool push)
         return true;
     }
 
-    unit.SetActionPoints(unit.GetActionPoints() - 1);
-    if (unit.GetActionPoints() == 0) {
-        //TODO: NextTurn();
-    }
+    ConsumeActiveUnitActionPoint();
     return true;
 }
 
@@ -104,6 +104,7 @@ bool Battle::TryAttackUnit(Unit &target) {
     }
 
     pendingAttack = Attack{.targetPos = target.GetPosition()};
+    ConsumeActiveUnitActionPoint();
     DamageUnit(target, attacker.GetAttackPower());
     if (!target.IsAlive()) {
         std::cout << "Unit at position (" << target.GetPosition().x << ", " << target.GetPosition().y << ") has been defeated.\n";
@@ -137,7 +138,11 @@ bool Battle::TryPushUnit(Unit &target) {
         .y = targetPos.y + dy
     };
 
-    return TryMoveUnit(target, destination);
+    if (TryMoveUnit(target, destination)) {
+        ConsumeActiveUnitActionPoint();
+        return true;
+    }
+    return false;
 }
 
 bool Battle::TryPushUnit(const GridPosition targetPos) {
@@ -176,6 +181,16 @@ const Unit* Battle::FindUnitAt(const GridPosition pos) const {
         }
     }
     return nullptr;
+}
+
+bool Battle::IsFinished() const {
+    int aliveCount = 0;
+    for (const auto &unit : units_) {
+        if (unit.IsAlive()) {
+            aliveCount++;
+        }
+    }
+    return aliveCount <= 1;
 }
 
 std::optional<Attack> Battle::TakePendingAttack() {
@@ -236,6 +251,14 @@ void Battle::DamageUnit(Unit &unit, const int damage) {
     unit.TakeDamage(damage);
     if (wasAlive && !unit.IsAlive()) {
         pendingDeath = Death{.pos = unit.GetPosition(), .type = unit.GetType()};
+    }
+}
+
+void Battle::ConsumeActiveUnitActionPoint() {
+    Unit& unit = GetActiveUnit();
+    unit.SetActionPoints(unit.GetActionPoints() - 1);
+    if (unit.GetActionPoints() == 0) {
+        //TODO: NextTurn();
     }
 }
 

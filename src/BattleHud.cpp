@@ -25,6 +25,7 @@ namespace {
     constexpr char SkeletonPortraitPath[] = "assets/skeleton_portrait.png";
     constexpr char HealthBadgePath[] = "assets/health_badge.png";
     constexpr char ActionMenuPath[] = "assets/action_menu.png";
+    constexpr char TurnArrowPath[] = "assets/turn_arrow.png";
 
     void DrawCenteredText(const Font &font, const char* text, const Vector2 center, const float fontSize) {
         constexpr float spacing = 1.0f;
@@ -57,6 +58,7 @@ BattleHud::BattleHud(const Font& font)
         loadTexture(skeletonPortrait_, SkeletonPortraitPath);
         loadTexture(healthBadge_, HealthBadgePath);
         loadTexture(actionMenu_, ActionMenuPath);
+        loadTexture(turnArrow_, TurnArrowPath);
     } catch (...) {
         UnloadTextures();
         throw;
@@ -90,12 +92,13 @@ void BattleHud::Draw(const Battle& battle) const {
     DrawTexture(background_, 0, 0, WHITE);
     DrawBoardTiles(battle.GetBoard());
 
+    const Unit unit = battle.GetActiveUnit();
+
     DrawInteractableTiles(GetInteractableTiles(battle));
     DrawUnits(battle);
     animationPlayer_.Draw();
+    DrawTurnArrow(GetScreenPositionAtGridPosition(unit.GetPosition()));
     if (selectedEnemy_) DrawActionMenu(GetScreenPositionAtGridPosition(*selectedEnemy_));
-
-    const Unit unit = battle.GetActiveUnit();
 
     DrawCenteredText(font_, TextFormat("HP %d/%d", unit.GetHealth(), unit.GetMaxHealth()), HpCenter, 26.0f);
     DrawCenteredText(font_, TextFormat("AP %d/%d", unit.GetActionPoints(), unit.GetMaxActionPoints()), ApCenter, 26.0f);
@@ -103,7 +106,7 @@ void BattleHud::Draw(const Battle& battle) const {
     DrawCenteredText(font_, "END", {.x = EndTurnCenter.x, .y = EndTurnCenter.y - 15.0f}, 25.0f);
     DrawCenteredText(font_, "TURN", {.x = EndTurnCenter.x, .y = EndTurnCenter.y + 15.0f}, 25.0f);
 
-    if (unit.GetType() == UnitType::Enemy) {
+    if (!battle.IsAllyTurn()) {
         DrawCircleV(EndTurnCenter, EndTurnRadius, Color{.r = 15, .g = 12, .b = 10, .a = 155});
     } else if (IsEndTurnHovered()) {
         DrawCircleV(EndTurnCenter, EndTurnRadius, Color{.r = 255, .g = 216, .b = 123, .a = 45});
@@ -165,6 +168,10 @@ void BattleHud::Update(Battle& battle) {
 
     if (const auto pos = GetGridPositionAtScreenPosition(mousePos)) {
         HandleTileClick(*pos, battle);
+    }
+
+    if (EndTurnPressed()) {
+        battle.NextTurn();
     }
 }
 
@@ -228,12 +235,21 @@ InteractableTiles BattleHud::GetInteractableTiles(const Battle &battle) {
     };
 }
 
-Vector2 BattleHud::GetActionMenuPosition(Vector2 unitCenter) const {
+Vector2 BattleHud::GetActionMenuPosition(const Vector2 unitCenter) const {
     constexpr float gap = 20.0f;
 
     return {
         .x = unitCenter.x - static_cast<float>(actionMenu_.width) * 0.5f,
         .y = unitCenter.y - static_cast<float>(skeleton_.height) * 0.5f - static_cast<float>(actionMenu_.height) - gap
+    };
+}
+
+Vector2 BattleHud::GetTurnArrowPosition(const Vector2 unitCenter) const {
+    constexpr float gap = 20.0f;
+
+    return {
+        .x = unitCenter.x - static_cast<float>(turnArrow_.width) * 0.5f,
+        .y = unitCenter.y - static_cast<float>(skeleton_.height) * 0.5f - static_cast<float>(turnArrow_.height) - gap
     };
 }
 
@@ -271,6 +287,10 @@ void BattleHud::DrawUnits(const Battle &battle) const {
 
 void BattleHud::DrawActionMenu(const Vector2 unitCenter) const {
     DrawTextureV(actionMenu_, GetActionMenuPosition(unitCenter), WHITE);
+}
+
+void BattleHud::DrawTurnArrow(Vector2 unitCenter) const {
+    DrawTextureV(turnArrow_, GetTurnArrowPosition(unitCenter), WHITE);
 }
 
 void BattleHud::DrawHealthBadge(const Unit& unit, const Vector2 unitCenter) const {

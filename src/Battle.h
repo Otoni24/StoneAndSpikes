@@ -40,11 +40,11 @@ public:
     [[nodiscard]] bool IsAllyTurn() const;
     [[nodiscard]] const Unit& GetActiveUnit() const { return units_[turnOrder_.front()]; }
     [[nodiscard]] UnitType GetActiveUnitType() const { return GetActiveUnit().GetType(); }
-    [[nodiscard]] bool IsFinished() const { return GetAliveUnitCount() <= 1; }
     [[nodiscard]] const std::vector<Unit>& GetUnits() const { return units_; }
     [[nodiscard]] size_t GetAliveUnitCount() const { return turnOrder_.size(); }
     [[nodiscard]] const Board& GetBoard() const { return board_; }
     [[nodiscard]] const Unit* FindUnitAt(GridPosition pos) const;
+    [[nodiscard]] bool IsFinished() const;
 
     [[nodiscard]] std::optional<Attack> TakePendingAttack();
     [[nodiscard]] std::optional<Death> TakePendingDeath();
@@ -52,8 +52,10 @@ public:
 private:
     std::optional<GridPosition> ChooseUnitSpawn(UnitType unitType);
     void DamageUnit(Unit& unit, int damage);
+    void ConsumeActiveUnitActionPoint();
 
     [[nodiscard]] Unit* FindUnitAt(GridPosition pos);
+    [[nodiscard]] Unit& GetActiveUnit() { return units_[turnOrder_.front()]; }
 
     Random random_;
     Board board_;
