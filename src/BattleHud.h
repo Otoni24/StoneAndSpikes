@@ -49,6 +49,7 @@ private:
     void DrawActionMenu(Vector2 unitCenter) const;
     void DrawTurnArrow(Vector2 unitCenter) const;
     void DrawHealthBadge(const Unit& unit, Vector2 unitCenter) const;
+    void DrawTurnOrder(const Battle& battle) const;
     static Vector2 DrawOnTile(const Texture2D &texture, GridPosition pos);
     static void DrawInteractableTiles(const InteractableTiles& tiles);
 

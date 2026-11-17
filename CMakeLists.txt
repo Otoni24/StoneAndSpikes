@@ -44,3 +44,37 @@ add_custom_command(TARGET StoneAndSpikes POST_BUILD
         "$<TARGET_FILE_DIR:StoneAndSpikes>/assets"
         VERBATIM
 )
+
+install(TARGETS StoneAndSpikes
+        RUNTIME DESTINATION .
+        COMPONENT Game
+)
+
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/assets"
+        DESTINATION .
+        COMPONENT Game
+)
+
+if(MINGW)
+    get_filename_component(MINGW_BIN_DIR "${CMAKE_CXX_COMPILER}" DIRECTORY)
+
+    foreach(DLL IN ITEMS
+            libgcc_s_seh-1.dll
+            libstdc++-6.dll
+            libwinpthread-1.dll
+    )
+        install(FILES "${MINGW_BIN_DIR}/${DLL}"
+                DESTINATION .
+                COMPONENT Game
+        )
+    endforeach()
+endif()
+
+set(CPACK_GENERATOR "ZIP")
+set(CPACK_PACKAGE_NAME "StoneAndSpikes")
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_COMPONENTS_ALL Game)
+set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
+set(CPACK_ARCHIVE_GAME_FILE_NAME "StoneAndSpikes-Windows")
+
+include(CPack)

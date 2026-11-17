@@ -98,6 +98,7 @@ void BattleHud::Draw(const Battle& battle) const {
     DrawInteractableTiles(GetInteractableTiles(battle));
     DrawUnits(battle);
     animationPlayer_.Draw();
+    DrawTurnOrder(battle);
     DrawTurnArrow(GetScreenPositionAtGridPosition(unit.GetPosition()));
     if (selectedEnemy_) DrawActionMenu(GetScreenPositionAtGridPosition(*selectedEnemy_));
 
@@ -318,6 +319,35 @@ void BattleHud::DrawHealthBadge(const Unit& unit, const Vector2 unitCenter) cons
     };
 
     DrawCenteredText(font_, TextFormat("%d/%d", unit.GetHealth(), unit.GetMaxHealth()), textCenter, 12.0f);
+}
+
+void BattleHud::DrawTurnOrder(const Battle &battle) const {
+    const auto order = battle.GetTurnOrder();
+    const auto& units = battle.GetUnits();
+
+    constexpr Vector2 firstCenter{162.0f, 130.0f};
+    constexpr float activeHeight = 80.0f;
+    constexpr float normalHeight = 60.0f;
+    constexpr float gap = 8.0f;
+
+    float cursorY = firstCenter.y - activeHeight * 0.5f;
+
+    for (std::size_t slot = 0; slot < order.size() && slot < 4; ++slot) {
+        const Unit& unit = units[order[slot]];
+        const bool active = slot == 0;
+
+        const Texture2D* portrait = unit.GetType() == UnitType::Ally ? &knightPortrait_ : &skeletonPortrait_;
+
+        const float height = active ? activeHeight : normalHeight;
+        const float width = height * static_cast<float>(portrait->width) / static_cast<float>(portrait->height);
+
+        const Rectangle source{0.0f, 0.0f, static_cast<float>(portrait->width), static_cast<float>(portrait->height)};
+        const Rectangle destination{firstCenter.x - width * 0.5f, cursorY, width, height};
+
+        DrawTexturePro(*portrait, source, destination, Vector2{}, 0.0f, WHITE);
+
+        cursorY += height + gap;
+    }
 }
 
 Vector2 BattleHud::DrawOnTile(const Texture2D &texture, const GridPosition pos) {

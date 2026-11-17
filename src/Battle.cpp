@@ -32,7 +32,7 @@ Battle::Battle(const std::uint32_t seed)
         units_.emplace_back(UnitType::Enemy, *spawnPos, GameConfig::EnemyMaxHealth, GameConfig::EnemyAttackPower, GameConfig::EnemyActionPoints);
     }
 
-    //TODO: random.Shuffle(units);
+    random_.Shuffle(units_);
 
     for (std::size_t i = 0; i < units_.size(); ++i) {
         turnOrder_.push(i);
@@ -157,6 +157,23 @@ bool Battle::IsAllyTurn() const {
     return units_[turnOrder_.front()].GetType() == UnitType::Ally;
 }
 
+std::vector<std::size_t> Battle::GetTurnOrder() const {
+    auto remaining = turnOrder_;
+    std::vector<std::size_t> order;
+    order.reserve(remaining.size());
+
+    while (!remaining.empty()) {
+        const std::size_t index = remaining.front();
+        remaining.pop();
+
+        if (units_[index].IsAlive()) {
+            order.push_back(index);
+        }
+    }
+
+    return order;
+}
+
 const Unit* Battle::FindUnitAt(const GridPosition pos) const {
     for (const auto &unit : units_) {
         if (unit.IsAlive() && unit.GetPosition() == pos) {
@@ -248,7 +265,9 @@ void Battle::CheckDeath(const Unit &unit) {
     if (!unit.IsAlive()) {
         pendingDeath = Death{.pos = unit.GetPosition(), .type = unit.GetType()};
         std::cout << "Unit at position (" << unit.GetPosition().x << ", " << unit.GetPosition().y << ") has been defeated.\n";
-        NextTurn();
+        if (&unit == &GetActiveUnit()) {
+            NextTurn();
+        }
     }
 }
 

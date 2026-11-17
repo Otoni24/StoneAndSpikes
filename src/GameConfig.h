@@ -4,14 +4,14 @@ namespace GameConfig {
     inline constexpr int BoardWidth = 7;
     inline constexpr int BoardHeight = 7;
 
-    inline constexpr int AllyMaxHealth = 4;
+    inline constexpr int AllyMaxHealth = 5;
     inline constexpr int AllyActionPoints = 4;
-    inline constexpr int EnemyMaxHealth = 3;
-    inline constexpr int EnemyActionPoints = 3;
+    inline constexpr int EnemyMaxHealth = 4;
+    inline constexpr int EnemyActionPoints = 4;
     inline constexpr int AllyAttackPower = 1;
     inline constexpr int EnemyAttackPower = 1;
 
-    inline constexpr int SpikesDamage = 3;
+    inline constexpr int SpikesDamage = 5;
 
     inline constexpr int MinSpikeTiles = 3;
     inline constexpr int MaxSpikeTiles = 5;
