@@ -24,7 +24,7 @@ public:
     [[nodiscard]] bool IsSpike(const GridPosition pos) const { return tiles[pos.y][pos.x] == Tile::Spike; }
     [[nodiscard]] GridPosition GetRandomFloorPosition(Random& random) const;
     [[nodiscard]] Tile GetTileTypeAt(const GridPosition pos) const { return tiles[pos.y][pos.x]; }
-    [[nodiscard]] std::vector<GridPosition> GetAdjacentFloorPositions(GridPosition pos) const;
+    [[nodiscard]] std::vector<GridPosition> GetAdjacentNonWallPositions(GridPosition pos) const;
     [[nodiscard]] std::vector<GridPosition> GetPositions(Tile tileType) const;
 
     [[nodiscard]] static bool IsInsideBounds(const GridPosition pos) { return pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height; }

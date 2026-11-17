@@ -23,12 +23,16 @@ add_executable(StoneAndSpikes src/main.cpp
         src/Unit.cpp
         src/Unit.h
         src/GameTypes.h
-        src/PlayerController.cpp
-        src/PlayerController.h
         src/BattleHud.cpp
         src/BattleHud.h
         src/AnimationPlayer.cpp
         src/AnimationPlayer.h
+        src/CombatRules.cpp
+        src/CombatRules.h
+        src/EnemyPlanner.cpp
+        src/EnemyPlanner.h
+        src/EnemyAI.cpp
+        src/EnemyAI.h
 )
 target_compile_features(StoneAndSpikes PRIVATE cxx_std_20)
 target_link_libraries(StoneAndSpikes PRIVATE raylib)

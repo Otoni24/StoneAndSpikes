@@ -2,6 +2,7 @@
 
 #include "Battle.h"
 #include "BattleHud.h"
+#include "EnemyAI.h"
 
 #include <exception>
 #include <iostream>
@@ -15,22 +16,11 @@ int main() {
     try {
         Battle battle{};
         BattleHud hud{};
+        EnemyAI enemyAI{};
 
         while (!WindowShouldClose()) {
             hud.Update(battle);
-            if (!battle.IsFinished()) {
-                switch (battle.GetActiveUnitType()) {
-                    case UnitType::Ally:
-                        break;
-
-                    case UnitType::Enemy:
-                        // enemyAI.Update(battle);
-                        break;
-                }
-            }
-
-            const bool playerTurn = !battle.IsFinished()
-                && battle.GetActiveUnitType() == UnitType::Ally;
+            enemyAI.Update(battle, GetFrameTime());
 
             BeginDrawing();
             ClearBackground(BLACK);
