@@ -117,13 +117,13 @@ GridPosition Board::GetRandomFloorPosition(Random& random) const {
     }
 }
 
-std::vector<GridPosition> Board::GetAdjacentFloorPositions(const GridPosition pos) const {
+std::vector<GridPosition> Board::GetAdjacentNonWallPositions(const GridPosition pos) const {
     std::vector<GridPosition> adjacentPositions;
     constexpr std::array<GridPosition, 4> directions = {{{0, -1}, {0, 1}, {-1, 0}, {1, 0}}};
 
     for (const auto& dir : directions) {
         const GridPosition adjacentPos{.x = pos.x + dir.x, .y = pos.y + dir.y};
-        if (IsInsideBounds(adjacentPos) && IsFloor(adjacentPos)) {
+        if (IsInsideBounds(adjacentPos) && !IsWall(adjacentPos)) {
             adjacentPositions.push_back(adjacentPos);
         }
     }

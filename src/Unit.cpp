@@ -13,6 +13,11 @@ void Unit::SetPosition(const GridPosition pos) {
     position = pos;
 }
 
+void Unit::SetHealth(const int newHealth) {
+    health = newHealth;
+    if (health < 0) health = 0;
+}
+
 void Unit::SetActionPoints(const int newActionPoints) {
     actionPoints = newActionPoints;
     if (actionPoints < 0) actionPoints = 0;

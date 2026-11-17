@@ -12,6 +12,7 @@ public:
     Unit(UnitType unitType, GridPosition pos, int hp, int attack, int actionPoints);
     void TakeDamage(int damage);
     void SetPosition(GridPosition pos);
+    void SetHealth(int newHealth);
     void SetActionPoints(int newActionPoints);
 
     [[nodiscard]] UnitType GetType() const { return type; }

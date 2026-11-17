@@ -5,6 +5,7 @@
 #include <ostream>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include "Battle.h"
 #include "Board.h"
 
@@ -142,6 +143,14 @@ void BattleHud::Update(Battle& battle) {
         return;
     }
 
+    if (battle.GetActiveUnit().GetActionPoints() <= 0) {
+        selectedEnemy_.reset();
+        if (EndTurnPressed()) {
+            battle.NextTurn();
+        }
+        return;
+    }
+
     const Vector2 mousePos = GetMousePosition();
 
     if (selectedEnemy_){
@@ -225,7 +234,7 @@ InteractableTiles BattleHud::GetInteractableTiles(const Battle &battle) {
 
     const Unit& unit = battle.GetActiveUnit();
 
-    if (!unit.IsAlive() || unit.GetType() == UnitType::Enemy) {
+    if (!unit.IsAlive() || unit.GetActionPoints() <= 0 || unit.GetType() == UnitType::Enemy) {
         return {};
     }
 

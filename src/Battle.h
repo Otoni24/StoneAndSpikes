@@ -28,7 +28,7 @@ public:
     void NextTurn();
 
     bool TryMoveActiveUnit(GridPosition newPos);
-    bool TryMoveUnit(Unit& unit, GridPosition newPos, bool push = false);
+    bool TryMoveUnit(Unit& unit, GridPosition newPos, bool isPush = false);
     bool TryAttackUnit(Unit& target);
     bool TryAttackUnit(GridPosition targetPos);
     bool TryPushUnit(Unit& target);
@@ -39,6 +39,7 @@ public:
 
     [[nodiscard]] bool IsAllyTurn() const;
     [[nodiscard]] const Unit& GetActiveUnit() const { return units_[turnOrder_.front()]; }
+    [[nodiscard]] size_t GetActiveUnitIndex() const { return turnOrder_.front(); }
     [[nodiscard]] UnitType GetActiveUnitType() const { return GetActiveUnit().GetType(); }
     [[nodiscard]] const std::vector<Unit>& GetUnits() const { return units_; }
     [[nodiscard]] size_t GetAliveUnitCount() const { return turnOrder_.size(); }
@@ -51,11 +52,11 @@ public:
 
 private:
     std::optional<GridPosition> ChooseUnitSpawn(UnitType unitType);
-    void DamageUnit(Unit& unit, int damage);
-    void ConsumeActiveUnitActionPoint();
+    void CheckActionPoints(const Unit& unit);
+    void CheckDeath(const Unit& unit);
 
-    [[nodiscard]] Unit* FindUnitAt(GridPosition pos);
-    [[nodiscard]] Unit& GetActiveUnit() { return units_[turnOrder_.front()]; }
+    [[nodiscard]] Unit* FindMutableUnitAt(GridPosition pos);
+    [[nodiscard]] Unit& GetActiveMutableUnit() { return units_[turnOrder_.front()]; }
 
     Random random_;
     Board board_;
