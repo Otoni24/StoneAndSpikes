@@ -9,7 +9,7 @@
 
 class Random;
 
-enum class Tile : uint8_t {
+enum class Tile : std::uint8_t {
     Floor = 0,
     Wall = 1,
     Spike = 2
@@ -39,5 +39,4 @@ private:
     static constexpr int height = GameConfig::BoardHeight;
 
     std::array<std::array<Tile, GameConfig::BoardWidth>, GameConfig::BoardHeight> tiles{};
-    bool isAllyTurn{};
 };

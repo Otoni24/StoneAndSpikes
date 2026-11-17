@@ -1,5 +1,7 @@
 ﻿#include "Board.h"
 
+#include <cstdlib>
+#include <numeric>
 #include <queue>
 #include <stdexcept>
 
@@ -92,7 +94,7 @@ bool Board::AreWalkableTilesConnected() const {
             if (next.x < 0 || next.x >= width ||
                 next.y < 0 || next.y >= height) {
                 continue;
-                }
+            }
 
             if (visited[next.y][next.x] || !IsFloor(next)) {
                 continue;

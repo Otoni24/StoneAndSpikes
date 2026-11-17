@@ -1,7 +1,7 @@
 ﻿#include "Battle.h"
 
 #include <iostream>
-#include <ostream>
+#include <stdexcept>
 #include <utility>
 
 #include "Unit.h"
@@ -83,7 +83,6 @@ bool Battle::TryMoveUnit(Unit &unit, const GridPosition newPos, const bool isPus
         return false;
     }
 
-    CheckActionPoints(unit);
     CheckDeath(unit);
 
     return true;
@@ -101,7 +100,6 @@ bool Battle::TryAttackUnit(Unit &target) {
 
     pendingAttack = Attack{.targetPos = target.GetPosition()};
 
-    CheckActionPoints(attacker);
     CheckDeath(target);
 
     return true;
@@ -116,13 +114,10 @@ bool Battle::TryPushUnit(Unit &target) {
     if (IsFinished()) {
         return false;
     }
-    const Unit& attacker = GetActiveUnit();
-
     if (!CombatRules::TryApplyPush(GetActiveMutableUnit(), target, units_, board_)) {
         return false;
     }
 
-    CheckActionPoints(attacker);
     CheckDeath(target);
 
     return true;
@@ -253,12 +248,6 @@ std::optional<GridPosition> Battle::ChooseUnitSpawn(const UnitType unitType) {
     }
 
     return candidates[random_.WeightedIndex(weights)];
-}
-
-void Battle::CheckActionPoints(const Unit &unit) {
-    if (unit.GetActionPoints() == 0) {
-        //TODO: NextTurn();
-    }
 }
 
 void Battle::CheckDeath(const Unit &unit) {

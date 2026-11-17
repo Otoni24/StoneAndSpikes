@@ -23,8 +23,6 @@ struct Animation {
         return static_cast<float>(frameCount) / fps;
     }
 
-    Vector2 pos{};
-    Texture2D* texture{};
     int frameCount{};
     float frameWidth{};
     float frameHeight{};
@@ -42,6 +40,12 @@ struct AnimationInstance {
 
 class AnimationPlayer {
 public:
+    AnimationPlayer() = default;
+    ~AnimationPlayer();
+
+    AnimationPlayer(const AnimationPlayer&) = delete;
+    AnimationPlayer& operator=(const AnimationPlayer&) = delete;
+
     void Draw() const;
     void Update(float deltaTime);
     void Play(AnimationType animationType, Vector2 pos);

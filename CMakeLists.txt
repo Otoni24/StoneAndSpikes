@@ -34,6 +34,11 @@ add_executable(StoneAndSpikes src/main.cpp
         src/EnemyAI.cpp
         src/EnemyAI.h
 )
+if(WIN32)
+    set_target_properties(StoneAndSpikes PROPERTIES
+            WIN32_EXECUTABLE "$<CONFIG:Release>"
+    )
+endif()
 target_compile_features(StoneAndSpikes PRIVATE cxx_std_20)
 target_link_libraries(StoneAndSpikes PRIVATE raylib)
 

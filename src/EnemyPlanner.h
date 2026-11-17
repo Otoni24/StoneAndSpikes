@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#pragma once
-
 #include <cstddef>
 #include <vector>
 
@@ -30,7 +28,6 @@ namespace EnemyPlanner {
     };
 
     [[nodiscard]] std::vector<Successor> GenerateSuccessors(const PlanningState& state, const Board& board);
-    [[nodiscard]] static auto EvaluateState(const PlanningState& initial, const PlanningState& state, const Board& board);
     [[nodiscard]] std::vector<PlannedAction> FindBestPlan(const PlanningState& initial, const Board& board);
 
 }

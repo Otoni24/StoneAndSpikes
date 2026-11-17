@@ -22,6 +22,7 @@ bool CombatRules::TryApplyMovement(Unit &unit, const GridPosition pos, const boo
     if (!unit.IsAlive() ||
         (!isPush && unit.GetActionPoints() <= 0) ||
         !Board::IsInsideBounds(pos) ||
+        !Board::ArePositionsAdjacent(unit.GetPosition(), pos) ||
         board.IsWall(pos) ||
         IsOccupied(units, pos)) {
         return false;

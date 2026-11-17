@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <queue>
+#include <tuple>
 #include <utility>
 
 #include "Board.h"
@@ -47,7 +48,7 @@ namespace {
                 if (!Board::IsInsideBounds(next) || visited[next.y][next.x]
                     || !board.IsFloor(next) || CombatRules::IsOccupied(state.units, next)) {
                     continue;
-                    }
+                }
 
                 visited[next.y][next.x] = true;
                 pending.emplace(next, steps + 1);
@@ -120,7 +121,7 @@ namespace EnemyPlanner {
         return successors;
     }
 
-    auto EvaluateState(const PlanningState &initial, const PlanningState &state, const Board &board) {
+    [[nodiscard]] static auto EvaluateState(const PlanningState &initial, const PlanningState &state, const Board &board) {
         int knightsAlive = 0;
         int knightsKilled = 0;
         int damageDealt = 0;

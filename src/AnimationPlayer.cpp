@@ -18,6 +18,12 @@ namespace {
     };
 }
 
+AnimationPlayer::~AnimationPlayer() {
+    for (const auto& entry : textures_) {
+        UnloadTexture(entry.second);
+    }
+}
+
 void AnimationPlayer::Draw() const{
     for (const auto&[animation, texture, pos, elapsed] : instances_) {
         const int frame = std::min(static_cast<int>(elapsed * animation.fps), animation.frameCount - 1);
@@ -76,7 +82,12 @@ Texture2D AnimationPlayer::GetOrLoadTexture(const char *texturePath) {
         if (!IsTextureValid(texture)) {
             throw std::runtime_error(std::string{"Cannot load animation texture: "} + texturePath);
         }
-        textures_[texturePath] = texture;
+        try {
+            textures_.emplace(texturePath, texture);
+        } catch (...) {
+            UnloadTexture(texture);
+            throw;
+        }
     }
     return textures_[texturePath];
 }

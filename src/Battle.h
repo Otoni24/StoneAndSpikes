@@ -1,6 +1,7 @@
 ﻿#pragma once
 
-#include <memory>
+#include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <queue>
 #include <vector>
@@ -40,10 +41,9 @@ public:
     [[nodiscard]] bool IsAllyTurn() const;
     [[nodiscard]] std::vector<std::size_t> GetTurnOrder() const;
     [[nodiscard]] const Unit& GetActiveUnit() const { return units_[turnOrder_.front()]; }
-    [[nodiscard]] size_t GetActiveUnitIndex() const { return turnOrder_.front(); }
+    [[nodiscard]] std::size_t GetActiveUnitIndex() const { return turnOrder_.front(); }
     [[nodiscard]] UnitType GetActiveUnitType() const { return GetActiveUnit().GetType(); }
     [[nodiscard]] const std::vector<Unit>& GetUnits() const { return units_; }
-    [[nodiscard]] size_t GetAliveUnitCount() const { return turnOrder_.size(); }
     [[nodiscard]] const Board& GetBoard() const { return board_; }
     [[nodiscard]] const Unit* FindUnitAt(GridPosition pos) const;
     [[nodiscard]] bool IsFinished() const;
@@ -53,7 +53,6 @@ public:
 
 private:
     std::optional<GridPosition> ChooseUnitSpawn(UnitType unitType);
-    void CheckActionPoints(const Unit& unit);
     void CheckDeath(const Unit& unit);
 
     [[nodiscard]] Unit* FindMutableUnitAt(GridPosition pos);

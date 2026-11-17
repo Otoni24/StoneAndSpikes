@@ -1,8 +1,6 @@
 #include "BattleHud.h"
 
 #include <algorithm>
-#include <iostream>
-#include <ostream>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -163,7 +161,6 @@ void BattleHud::Update(Battle& battle) {
         const Vector2 pushCenter{.x = x + 75.0f, .y = y + 27.0f};
 
         if (CheckCollisionPointCircle(mousePos, attackCenter, radius)) {
-            std::cout << "Attack clicked" << std::endl;
             battle.TryAttackUnit(*selectedEnemy_);
             selectedEnemy_.reset();
             return;
@@ -181,6 +178,7 @@ void BattleHud::Update(Battle& battle) {
     }
 
     if (EndTurnPressed()) {
+        selectedEnemy_.reset();
         battle.NextTurn();
     }
 }
@@ -377,7 +375,7 @@ void BattleHud::DrawInteractableTiles(const InteractableTiles &tiles) {
 void BattleHud::UnloadTextures() noexcept {
     for (const Texture2D texture : {
              background_, pillar_, spikes_, knight_, skeleton_,
-             knightPortrait_, skeletonPortrait_, healthBadge_, actionMenu_
+             knightPortrait_, skeletonPortrait_, healthBadge_, actionMenu_, turnArrow_
          }) {
         if (texture.id != 0) {
             UnloadTexture(texture);
